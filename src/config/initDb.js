@@ -141,4 +141,8 @@ async function initDatabase() {
   await connection.end();
 }
 
-initDatabase().catch(console.error);
+if (require.main === module) {
+  initDatabase().catch(console.error);
+}
+
+module.exports = { initDatabase };

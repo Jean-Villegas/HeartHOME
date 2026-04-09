@@ -31,6 +31,17 @@ router.get('/search', authenticateToken, authorizeRoles('Medico', 'Administrador
   }
 });
 
+// Actualizar perfil completo (propio)
+// Debe ir antes de '/:id' para evitar colisión con rutas dinámicas
+router.put('/profile/me', authenticateToken, async (req, res) => {
+  try {
+    const result = await usuarioController.updateFullProfile(req);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
+});
+
 // Obtener usuario por ID (propio o Admin)
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
@@ -71,16 +82,6 @@ router.put('/:id', authenticateToken, async (req, res) => {
 router.delete('/:id', authenticateToken, authorizeRoles('Administrador'), async (req, res) => {
   try {
     const result = await usuarioController.remove(req);
-    res.status(result.status).json(result.data);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error en el servidor' });
-  }
-});
-
-// Actualizar perfil completo (propio)
-router.put('/profile/me', authenticateToken, async (req, res) => {
-  try {
-    const result = await usuarioController.updateFullProfile(req);
     res.status(result.status).json(result.data);
   } catch (error) {
     res.status(500).json({ mensaje: 'Error en el servidor' });
