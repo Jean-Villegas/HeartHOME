@@ -159,6 +159,16 @@ async function seed() {
   // ── Posts del foro ────────────────────────────────────────────────────────────
   console.log('\n📰 Insertando posts del foro...');
   for (const [ui, titulo, contenido] of POSTS_FORO) {
+    const [exists] = await conn.execute(
+      'SELECT id FROM foros WHERE autor_id = ? AND titulo = ? LIMIT 1',
+      [userIds[ui], titulo]
+    );
+
+    if (exists.length > 0) {
+      console.log(`   ⚠️  Post "${titulo.substring(0, 30)}..." ya existe`);
+      continue;
+    }
+
     const [r] = await conn.execute(
       'INSERT INTO foros (autor_id, titulo, contenido) VALUES (?, ?, ?)',
       [userIds[ui], titulo, contenido]
@@ -171,6 +181,19 @@ async function seed() {
   for (const [cui, mui, fecha, tipo, glucosa, colesterol, trigliceridos, diag_pac, diag_med] of ANALISIS) {
     const medicoId = mui !== null ? userIds[MEDICOS[mui][0]] : null;
     const fechaDiag = diag_med ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null;
+
+    const [exists] = await conn.execute(
+      `SELECT id FROM analisis_medicos
+       WHERE cliente_id = ? AND fecha_examen = ? AND tipo_examen = ?
+       LIMIT 1`,
+      [userIds[cui], fecha, tipo]
+    );
+
+    if (exists.length > 0) {
+      console.log(`   ⚠️  Análisis ${tipo} (${fecha}) para ${USUARIOS[cui][0]} ya existe`);
+      continue;
+    }
+
     const [r] = await conn.execute(
       `INSERT INTO analisis_medicos
          (cliente_id, medico_id, fecha_examen, tipo_examen,
@@ -197,7 +220,11 @@ async function seed() {
   console.log('  Paciente 3   → paciente3 / Paciente3!');
 }
 
-seed().catch(err => {
-  console.error('❌ Error en el seed:', err.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  seed().catch(err => {
+    console.error('❌ Error en el seed:', err.message);
+    process.exit(1);
+  });
+}
+
+module.exports = { seed };
