@@ -175,6 +175,23 @@ function inicializarEventListeners() {
   // Formulario del perfil
   document.getElementById('perfil-form-full')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Validación defensiva: evita envíos aunque otro listener solo haga preventDefault
+    if (window.Validators?.validateForm) {
+      const ok = window.Validators.validateForm([
+        { el: document.getElementById('p-id'),            type: 'cedula',        required: false },
+        { el: document.getElementById('p-talla'),         type: 'talla',         required: false },
+        { el: document.getElementById('p-peso'),          type: 'peso',          required: false },
+        { el: document.getElementById('p-edad'),          type: 'edad',          required: false },
+        { el: document.getElementById('p-glucosa'),       type: 'glucosa',       required: false },
+        { el: document.getElementById('p-colesterol'),    type: 'colesterol',    required: false },
+        { el: document.getElementById('p-trigliceridos'), type: 'trigliceridos', required: false }
+      ]);
+      if (!ok) {
+        showAlert('Corrige los campos inválidos antes de guardar.', 'error');
+        return;
+      }
+    }
     
     const btn = e.target.querySelector('button[type="submit"]');
     if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
@@ -285,11 +302,20 @@ function inicializarEventListeners() {
     logoutBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const profileMenu = document.getElementById('profile-menu');
       if (profileMenu) profileMenu.classList.remove('show');
       handleLogout(e);
     });
   }
+
+  // Fallback por delegación: garantiza funcionamiento del botón aunque se re-renderice
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('#btn-logout-new');
+    if (!trigger) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (profileMenu) profileMenu.classList.remove('show');
+    handleLogout(e);
+  });
   
   // Test pulmonar
   const btnTestPulmones = document.getElementById('btn-test-pulmones');
@@ -884,6 +910,8 @@ function showLogoutWarning() {
 }
 
 function performLogout() {
+  // Intentar invalidar sesión en backend aunque sea auto-logout
+  API.request('/auth/logout', { method: 'POST' }).catch(() => {});
   localStorage.removeItem('user');
   sessionStorage.clear();
   window.location.href = 'index.html';
@@ -1081,7 +1109,7 @@ window.showPatientDetails = async (analisisId, clienteId) => {
     console.error('Error cargando detalles del paciente:', error);
     const detailsContainer = document.getElementById('patient-details');
     if (detailsContainer) {
-      detailsContainer.innerHTML = '<div style="text-align:style="text-align:center; padding:40px; color:var(--danger);"><p>Error al cargar detalles</p></div>';
+      detailsContainer.innerHTML = '<div style="text-align:center; padding:40px; color:var(--danger);"><p>Error al cargar detalles</p></div>';
     }
   }
 };

@@ -15,16 +15,6 @@ router.get('/', authenticateToken, authorizeRoles('Administrador', 'Medico'), as
   }
 });
 
-// Obtener post por ID (propietario del post, cliente asociado, Médico o Admin)
-router.get('/:id', authenticateToken, async (req, res) => {
-  try {
-    const result = await postController.getById(req);
-    res.status(result.status).json(result.data);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error en el servidor' });
-  }
-});
-
 // Obtener posts de un cliente específico (propio, Médico o Admin)
 router.get('/cliente/:clienteId', authenticateToken, async (req, res) => {
   try {
@@ -36,6 +26,16 @@ router.get('/cliente/:clienteId', authenticateToken, async (req, res) => {
     }
     
     const result = await postController.getByClienteId(req);
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error en el servidor' });
+  }
+});
+
+// Obtener post por ID (propietario del post, cliente asociado, Médico o Admin)
+router.get('/:id', authenticateToken, async (req, res) => {
+  try {
+    const result = await postController.getById(req);
     res.status(result.status).json(result.data);
   } catch (error) {
     res.status(500).json({ mensaje: 'Error en el servidor' });

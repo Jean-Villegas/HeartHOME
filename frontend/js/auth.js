@@ -58,6 +58,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Register Logic
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Validación defensiva: evita enviar si hay errores de campos
+    if (window.Validators?.validateForm) {
+      const ok = window.Validators.validateForm([
+        { el: document.getElementById('reg-username'), type: 'username' },
+        { el: document.getElementById('reg-cedula'),   type: 'cedula'   },
+        { el: document.getElementById('reg-email'),    type: 'email'    },
+        { el: document.getElementById('reg-password'), type: 'password' }
+      ]);
+      if (!ok) {
+        showAlert('Corrige los campos marcados antes de registrarte.');
+        return;
+      }
+    }
+
     btnRegister.textContent = 'Registrando...';
     btnRegister.disabled = true;
 
