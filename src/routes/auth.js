@@ -21,6 +21,9 @@ router.post('/login', async (req, res) => {
     if (result.data.token) {
       res.cookie('token', result.data.token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
         maxAge: 24 * 60 * 60 * 1000 // 24 horas
       });
       // NO eliminar el token - el frontend lo necesita
