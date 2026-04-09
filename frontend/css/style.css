@@ -1,0 +1,26 @@
+/* ===================================
+   SISTEMA DE SALUD - CSS PRINCIPAL
+   Importa todos los módulos CSS separados
+   =================================== */
+
+/* --- VARIABLES GLOBALES --- */
+@import url('variables.css');
+
+/* --- ESTILOS BASE --- */
+@import url('base.css');
+
+/* --- COMPONENTES REUTILIZABLES --- */
+@import url('components.css');
+
+/* --- LAYOUT Y ESTRUCTURA --- */
+@import url('layout.css');
+
+/* --- ANIMACIONES --- */
+@import url('animations.css');
+
+/* --- ESTILOS ESPECÍFICOS --- */
+@import url('auth.css');
+@import url('dashboard.css');
+
+/* --- ESTILOS ADICIONALES (si los hay) --- */
+/* @import url('custom.css'); */
